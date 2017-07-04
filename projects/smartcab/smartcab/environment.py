@@ -297,6 +297,9 @@ class Environment(object):
         if self.enforce_deadline:
             penalty = (math.pow(gradient, fnc) - 1) / (gradient - 1)
 
+        if self.verbose and agent.primary_agent:
+            print 'Penalty', penalty, 'Fnc', fnc
+
         # Agent wants to drive forward:
         if action == 'forward':
             if light != 'green': # Running red light
@@ -428,7 +431,7 @@ class Agent(object):
         return self.state
 
     def get_next_waypoint(self):
-        return self.next_waypoint  
+        return self.next_waypoint
 
 
 class DummyAgent(Agent):
