@@ -1,5 +1,4 @@
 import random
-import math
 from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
@@ -10,7 +9,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """ 
 
-    def __init__(self, env, learning=False, epsilon=1.0, alpha=0.5):
+    def __init__(self, env, learning=False, epsilon=1.0, alpha=0.5, trials = 200, tolerance = 0.05, use_future_rewards = False):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment 
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -25,7 +24,15 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Set any additional class parameters as needed
+        self.use_future_rewards = use_future_rewards
+        if use_future_rewards:
+            self.prev_state = None
+            self.prev_reward = 0
+            self.prev_action = None
 
+        # calculate a for decaying
+        self.a = -np.log(tolerance) / trials
+        self.t = 0
 
     def reset(self, destination=None, testing=False):
         """ The reset function is called at the beginning of each trial.
@@ -41,10 +48,17 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
+
         if self.epsilon > 0:
-            self.epsilon -= 0.05
+            self.epsilon = np.e**(-self.a * self.t)
+
         if testing:
             self.epsilon, self.alpha = 0., 0.
+
+        self.t += 1
+        self.prev_state = None
+        self.prev_reward = 0
+        self.prev_action = None
 
         return None
 
@@ -115,10 +129,15 @@ class LearningAgent(Agent):
         # When learning, choose a random action with 'epsilon' probability
         #   Otherwise, choose an action with the highest Q-value for the current state
         random_action = random.random() < self.epsilon
-        if self.learning and not random_action:
-            maxQ = self.get_maxQ(state)
-            action = maxQ[0]
-            print 'maxQ:', maxQ
+        if self.learning:
+            if random_action:
+                candidates = [action for action, reward in self.Q[state].iteritems() if reward == 0.]
+                if len(candidates) == 0:
+                    candidates = self.valid_actions
+                action = candidates[np.random.randint(len(candidates))]
+            else:
+                maxQ = self.get_maxQ(state)
+                action = maxQ[0]
         else:
             action = self.valid_actions[np.random.randint(len(self.valid_actions))]
 
@@ -136,9 +155,18 @@ class LearningAgent(Agent):
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
         if self.learning:
-            qsa = self.Q[state][action]
-            maxQ = self.get_maxQ(state)
-            self.Q[state][action] = (1 - self.alpha) * qsa + self.alpha * (reward + maxQ[1])
+            if self.use_future_rewards:
+                if self.prev_state is not None:
+                    qsa = self.Q[self.prev_state][self.prev_action]
+                    maxQ = self.get_maxQ(state)
+                    self.Q[self.prev_state][self.prev_action] = (1 - self.alpha) * qsa + self.alpha * (self.prev_reward + maxQ[1])
+                self.prev_reward = reward
+                self.prev_state = state
+                self.prev_action = action
+            else:
+                qsa = self.Q[state][action]
+                maxQ = self.get_maxQ(state)
+                self.Q[state][action] = (1 - self.alpha) * qsa + self.alpha * (reward + maxQ[1])
 
         return
 
@@ -155,12 +183,12 @@ class LearningAgent(Agent):
         self.learn(state, action, reward)   # Q-learn
 
         return
-        
 
 def run():
     """ Driving function for running the simulation. 
         Press ESC to close the simulation, or [SPACE] to pause the simulation. """
-
+    np.random.seed(42)
+    random.seed = 42
     ##############
     # Create the environment
     # Flags:
@@ -175,7 +203,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent, learning = True)
+    agent = env.create_agent(LearningAgent, learning = True, epsilon = 1.0, alpha = .2, tolerance = 0.05, trials = 100)
     
     ##############
     # Follow the driving agent
@@ -190,7 +218,7 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, log_metrics=True, display=False)
+    sim = Simulator(env, update_delay=0.01, log_metrics=True, display=False, optimized=True)
     
     ##############
     # Run the simulator
