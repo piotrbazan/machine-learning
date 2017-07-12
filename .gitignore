@@ -67,3 +67,4 @@ target/
 .idea
 *.ckpt.*
 *.p
+projects/image-classification/cifar-10-*
