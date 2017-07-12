@@ -8,6 +8,7 @@ import csv
 import os
 import pandas as pd
 import ast
+from time import time
 
 def run(alpha, trials):
     ##############
@@ -24,7 +25,7 @@ def run(alpha, trials):
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent, learning=True, epsilon=1.0, alpha=alpha, tolerance=0.05, trials=trials)
+    agent = env.create_agent(LearningAgent, learning = True, decay = True, epsilon = 1.0, alpha = alpha, trials = trials)
 
     ##############
     # Follow the driving agent
@@ -39,7 +40,7 @@ def run(alpha, trials):
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, log_metrics=True, display=False, optimized=True)
+    sim = Simulator(env, update_delay=0.001, log_metrics=True, display=False, optimized=True)
 
     ##############
     # Run the simulator
@@ -92,9 +93,14 @@ def optimize():
     with open(report_filename, "wb") as report:
         writer = csv.DictWriter(report, fieldnames=fields)
         writer.writeheader()
-        for i in range(11):
-            alpha, trials = 0.5, 200 + i * 10 #np.random.randint(20, 200)
+        start = time()
+        N = 10
+        for i in range(N):
+            #alpha, trials = random.uniform(0.05, 0.95), np.random.randint(20, 200)
+            alpha, trials = 0.5, 200 + i * 10
+            print 'Run %d --- alpha = %.2f --- trials = %d' % (i, alpha, trials)
             runExperiment(writer, alpha, trials)
-
+            duration = time() - start
+            print 'Run ETA = %.2fs' % (duration / (i+1)  * (N - i - 1))
 if __name__ == '__main__':
     optimize()
