@@ -68,6 +68,27 @@ def safe_random(i, margin, delta, size):
             return candidate
 
 
+def create_features(data, window_size=784):
+    """
+    Creates features based on annotation data. There are 2 types of data:
+    N - normal beat
+    A - arrythmia
+    :param data: 
+    :param window_size: 
+    :return: features
+    """
+    x, delta = [], int(window_size / 2)
+    for d in data:
+        ann, sig = d['annotations'], d['signals']
+        sig_size = len(sig)
+        for beat_type in ['N', 'A']:
+            for i in ann[ann['Type'] == beat_type]['Sample']:
+                if delta <= i < sig_size - delta:
+                    x.append(np.array(sig['MLII'][i - delta:i + delta]))
+
+    return np.array(x)
+
+
 def create_features_labels(data, window_size=784):
     """
     Creates features and labels based on annotation data. There are 3 types of data:
@@ -84,7 +105,7 @@ def create_features_labels(data, window_size=784):
         sig_size = len(sig)
         for beat_type in ['N', 'A']:
             for i in ann[ann['Type'] == beat_type]['Sample']:
-                if i >= delta and i < sig_size - delta:
+                if delta <= i < sig_size - delta:
                     x.append(np.array(sig['MLII'][i - delta:i + delta]))
                     y.append(beat_type)
                     # add non beats
