@@ -1,0 +1,1 @@
+Download wfdb and compile. Place download.sh, extract.sh in wfdb/database/mitdb. Run them.
