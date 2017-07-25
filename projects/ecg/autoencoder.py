@@ -3,6 +3,10 @@ from keras.models import Model
 from itertools import chain
 import matplotlib.pyplot as plt
 import numpy as np
+import os.path as path
+
+def weigths_path(filename):
+    return path.join('weights', filename)
 
 def create_encoding_layers(units = [128, 64, 32]):
     return [Dense(u, activation='relu') for u in units]
@@ -104,7 +108,7 @@ def reshape_inputs(x_train, x_test, shape):
 def load_weights(model, filename, load_prev):
     if filename is not None and load_prev:
         try:
-            model.load_weights(filename)
+            model.load_weights(weigths_path(filename))
             print('Successfully loaded weights')
         except Exception as e:
             print('Can\'t load weights to model', e)
@@ -113,18 +117,18 @@ def load_weights(model, filename, load_prev):
 def save_weights(model, filename):
     if filename is not None:
         try:
-            model.save_weights(filename)
+            model.save_weights(weigths_path(filename))
         except Exception as e:
             print('Can\'t save weights to model', e)
 
 
-def fit(encoders, x_train, x_test, epochs=10, filename=None, load_prev=True):
+def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=True, verbose = 0):
     autoencoder, encoder, decoder = encoders
     x_train, x_test = reshape_inputs(x_train, x_test, get_input_shape(autoencoder))
 
     autoencoder.compile(optimizer='adam', loss='mse')
     load_weights(autoencoder, filename, load_prev)
-    loss = autoencoder.fit(x_train, x_train, epochs=epochs, batch_size=512, shuffle=True, verbose=1,
+    loss = autoencoder.fit(x_train, x_train, epochs=epochs, batch_size=512, shuffle=True, verbose=verbose,
                            validation_data=(x_test, x_test))
     save_weights(autoencoder, filename)
 
