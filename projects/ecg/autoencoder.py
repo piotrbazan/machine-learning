@@ -4,6 +4,7 @@ from itertools import chain
 import matplotlib.pyplot as plt
 import numpy as np
 import os.path as path
+from plots import plot_loss_accuracy, plot_ecg
 
 def weigths_path(filename):
     return path.join('weights', filename)
@@ -126,15 +127,17 @@ def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=
     autoencoder, encoder, decoder = encoders
     x_train, x_test = reshape_inputs(x_train, x_test, get_input_shape(autoencoder))
 
-    autoencoder.compile(optimizer='adam', loss='mse')
+    autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
     load_weights(autoencoder, filename, load_prev)
-    loss = autoencoder.fit(x_train, x_train, epochs=epochs, batch_size=512, shuffle=True, verbose=verbose,
+    result = autoencoder.fit(x_train, x_train, epochs=epochs, batch_size=512, shuffle=True, verbose=verbose,
                            validation_data=(x_test, x_test))
     save_weights(autoencoder, filename)
 
     x_decoded = decoder.predict(encoder.predict(x_test))
     plot_diagrams(x_test, x_decoded)
-    plot_loss_accuracy(loss, x_test, x_decoded)
+    plot_loss_accuracy(result)
+    plot_ecg(x_test[0], x_decoded[0])
+    return result
 
 #-----------------------    plotting ---------------------------------------------
 
@@ -157,21 +160,12 @@ def plot_diagrams(x_test, x_decoded):
         for i in range(n):
             ax = plt.subplot(2, n, i + 1)
             plt.plot(x_test[i].reshape((784)))
-            plt.gray()
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
             ax = plt.subplot(2, n, i + 1 + n)
             plt.plot(x_decoded[i].reshape((784)))
-            plt.gray()
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
         plt.show()
 
 
-def plot_loss_accuracy(loss, x_test, x_decoded):
-    plt.figure(figsize=(14,3))
-    plt.subplot(1,2,1)
-    plt.plot(loss.history['loss'])
-    plt.subplot(1,2,2)
-    plt.plot(x_test[0].reshape((784)))
-    plt.plot(x_decoded[0].reshape((784)))
