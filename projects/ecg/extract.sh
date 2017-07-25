@@ -2,7 +2,7 @@
 PATH=$PATH:../../bin
 
 function extract_ann {
-rdann -a atr -r mitdb/$1 -v | tr -s " #" "," | cut -d"," -f2- | gzip > $2.gz
+rdann -a atr -r mitdb/$1 -v | tr -s "\t #" "," | cut -d"," -f2- | gzip > $2.gz
 } 
 
 function extract_sig {
