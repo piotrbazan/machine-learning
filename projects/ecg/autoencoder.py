@@ -69,7 +69,9 @@ def create_full_model(encoder, layers_dim = [3]):
     input = Input(shape=get_input_shape(encoder))
     # freeze encoder
     encoder.trainable = False
-    predictions = connect_layers(input, get_encoder_layers(encoder) + create_fc_layers(layers_dim))
+    # flatten for conv encoder
+    layers = [encoder, Flatten()] if len(get_output_shape(encoder)) > 2 else [encoder]
+    predictions = connect_layers(input, layers + create_fc_layers(layers_dim))
 
     return Model(inputs=input, outputs=predictions)
 

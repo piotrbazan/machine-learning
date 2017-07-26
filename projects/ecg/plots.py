@@ -45,7 +45,7 @@ def plot_validation_diagram(model, classes, ann, sig, start, stop):
     frames = np.array(frames).reshape((-1,) + get_input_shape(model))
     res = model.predict(frames)
     pred = np.argmax(res, axis=1)
-    for i, _ in enumerate(frames):
+    for i, _ in enumerate(frames):        
         type = classes[pred[i]]
         if type != 'NB':
             plt.text(start + 784 / 2 + i * 10, 0.35, type, fontsize=12)
