@@ -1,8 +1,11 @@
 import matplotlib.pyplot as plt
-from model import get_input_shape
 import numpy as np
 
 default_fig_size = (14, 3)
+
+
+def get_input_shape(model):
+    return model.layers[0].input_shape[1:]
 
 def plot_loss_accuracy(result):
     plt.figure(figsize=default_fig_size)
