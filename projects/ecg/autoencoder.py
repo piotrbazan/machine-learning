@@ -6,7 +6,7 @@ import numpy as np
 import os.path as path
 from plots import plot_loss_accuracy, plot_ecg
 
-def weigths_path(filename):
+def weights_path(filename):
     return path.join('weights', filename)
 
 def create_encoding_layers(units = [128, 64, 32]):
@@ -109,7 +109,7 @@ def reshape_inputs(x_train, x_test, shape):
 def load_weights(model, filename, load_prev):
     if filename is not None and load_prev:
         try:
-            model.load_weights(weigths_path(filename))
+            model.load_weights(weights_path(filename))
             print('Successfully loaded weights')
         except Exception as e:
             print('Can\'t load weights to model', e)
@@ -118,7 +118,7 @@ def load_weights(model, filename, load_prev):
 def save_weights(model, filename):
     if filename is not None:
         try:
-            model.save_weights(weigths_path(filename))
+            model.save_weights(weights_path(filename))
         except Exception as e:
             print('Can\'t save weights to model', e)
 
