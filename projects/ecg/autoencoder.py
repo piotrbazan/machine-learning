@@ -74,21 +74,6 @@ def create_full_model(encoder, layers_dim = [3]):
     return Model(inputs=input, outputs=predictions)
 
 
-def fit(model, x_train, x_test, y_train, y_test,
-                   epochs = 50, filename=None, load_prev=True, verbose = 1,
-                   optimizer = 'adam', loss = 'mse', metrics = ['accuracy'], batch_size=512):
-
-    x_train, x_test = reshape_inputs(x_train, x_test, get_input_shape(model))
-    model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
-    load_weights(model, filename, load_prev)
-    result = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, shuffle=True, verbose=verbose,
-                             validation_data=(x_test, y_test))
-    save_weights(model, filename)
-
-    return result
-
-
-
 def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=True, verbose = 0):
     autoencoder, encoder, decoder = encoders
 
