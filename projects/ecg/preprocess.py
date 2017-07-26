@@ -89,7 +89,7 @@ def create_features(data, window_size=784):
     return np.array(x)
 
 
-def create_features_labels(data, window_size=784):
+def create_features_labels(data, window_size=784, non_beats_per_beat = 9):
     """
     Creates features and labels based on annotation data. There are 3 types of data:
     N - normal beat
@@ -109,7 +109,7 @@ def create_features_labels(data, window_size=784):
                     x.append(np.array(sig['MLII'][i - delta:i + delta]))
                     y.append(beat_type)
                     # add non beats
-                    for j in range(10):
+                    for j in range(non_beats_per_beat):
                         c = safe_random(i, 10, delta, sig_size)
                         x.append(np.array(sig['MLII'][i + c - delta:i + c + delta]))
                         y.append('NB')
