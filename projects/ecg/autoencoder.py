@@ -3,7 +3,7 @@ from keras.models import Model
 from layers import *
 from utils import *
 import matplotlib.pyplot as plt
-from plots import plot_loss_accuracy, plot_ecg
+from plots import plot_loss_accuracy, plot_ecg, plot_diagrams
 
 
 def create_encoders(input_dim = 784, layers_dim = [128, 64], encoding_dim = 32):
@@ -76,21 +76,6 @@ def create_full_model(encoder, layers_dim = [3]):
     return Model(inputs=input, outputs=predictions)
 
 
-def fit(model, x_train, x_test, y_train, y_test,
-                   epochs = 50, filename=None, load_prev=True, verbose = 1,
-                   optimizer = 'adam', loss = 'mse', metrics = ['accuracy'], batch_size=512):
-
-    x_train, x_test = reshape_inputs(x_train, x_test, get_input_shape(model))
-    model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
-    load_weights(model, filename, load_prev)
-    result = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, shuffle=True, verbose=verbose,
-                             validation_data=(x_test, y_test))
-    save_weights(model, filename)
-
-    return result
-
-
-
 def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=True, verbose = 0):
     autoencoder, encoder, decoder = encoders
 
@@ -120,35 +105,3 @@ def fit_full_model(model, x_train, x_test, y_train, y_test, epochs = 50, filenam
 
     plot_loss_accuracy(result)
     return result
-
-
-#-----------------------    plotting ---------------------------------------------
-
-def plot_diagrams(x_test, x_decoded):
-        n, figsize = 10, (20, 3)
-        plt.figure(figsize=figsize)
-        for i in range(n):
-            ax = plt.subplot(2, n, i + 1)
-            plt.imshow(x_test[i].reshape(28, 28))
-            plt.gray()
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-            ax = plt.subplot(2, n, i + 1 + n)
-            plt.imshow(x_decoded[i].reshape(28, 28))
-            plt.gray()
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-        plt.show()
-        plt.figure(figsize=figsize)
-        for i in range(n):
-            ax = plt.subplot(2, n, i + 1)
-            plt.plot(x_test[i].reshape((784)))
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-            ax = plt.subplot(2, n, i + 1 + n)
-            plt.plot(x_decoded[i].reshape((784)))
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-        plt.show()
-
-
