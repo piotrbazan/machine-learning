@@ -7,6 +7,25 @@ default_fig_size = (14, 3)
 def get_input_shape(model):
     return model.layers[0].input_shape[1:]
 
+
+def hide_axes(ax):
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+
+
+def plot_loss_ecg(result, x_test, x_decoded):
+    plt.figure(figsize=default_fig_size)
+    plt.subplot(1,2,1)
+    plt.plot(result.history['loss'], label='train loss')
+    plt.plot(result.history['val_loss'], label='validation loss')
+    plt.legend()
+    ax = plt.subplot(1, 2, 2)
+    e1, e2 = x_test[0], x_decoded[0]
+    plt.plot(e1.reshape((784)))
+    plt.plot(e2.reshape((784)))
+    hide_axes(ax)
+
+
 def plot_loss_accuracy(result):
     plt.figure(figsize=default_fig_size)
     plt.subplot(1,2,1)
@@ -17,26 +36,11 @@ def plot_loss_accuracy(result):
     plt.plot(result.history['acc'], label='train acc')
     plt.plot(result.history['val_acc'], label='validation acc')
     plt.legend()
-    plt.show()
-
-
-def plot_ecg(e1, e2):
-    plt.figure(figsize=default_fig_size)
-    plt.plot(e1.reshape((784)))
-    plt.plot(e2.reshape((784)))
-    ax = plt.gca()
-    ax.get_yaxis().set_visible(False)
-    plt.show()
-
-
-def hide_axes(ax):
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
 
 
 def plot_diagrams(x_test, x_decoded):
-    n, figsize = 5, (16, 3)
-    plt.figure(figsize=figsize)
+    n = 5
+    plt.figure(figsize=default_fig_size)
     for i in range(n):
         ax = plt.subplot(2, 2 * n, i + 1)
         plt.imshow(x_test[i].reshape(28, 28))

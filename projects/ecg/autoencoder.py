@@ -3,7 +3,7 @@ from keras.models import Model
 from layers import *
 from utils import *
 import matplotlib.pyplot as plt
-from plots import plot_loss_accuracy, plot_ecg, plot_diagrams
+from plots import plot_loss_accuracy, plot_loss_ecg, plot_diagrams
 
 
 def create_encoders(input_dim = 784, layers_dim = [128, 64], encoding_dim = 32):
@@ -88,8 +88,7 @@ def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=
 
     x_decoded = decoder.predict(encoder.predict(x_test))
     plot_diagrams(x_test, x_decoded)
-    plot_loss_accuracy(result)
-    plot_ecg(x_test[0], x_decoded[0])
+    plot_loss_ecg(result, x_test, x_decoded)
     return result
 
 
