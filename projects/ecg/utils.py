@@ -9,10 +9,19 @@ def get_input_shape(model):
     return model.layers[0].input_shape[1:]
 
 
+def get_output_shape(model):
+    return model.layers[-1].output_shape[1:]
+
+
 def reshape_inputs(x_train, x_test, shape):
     x_train = np.reshape(x_train, (-1,) + shape)
     x_test = np.reshape(x_test, (-1,) + shape)
     return x_train, x_test
+
+def reshape_outputs(y_train, y_test, shape):
+    y_train = np.reshape(y_train, (-1,) + shape)
+    y_test = np.reshape(y_test, (-1,) + shape)
+    return y_train, y_test
 
 
 def connect_layers(input, layers):

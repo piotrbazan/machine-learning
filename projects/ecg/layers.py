@@ -1,6 +1,8 @@
 from itertools import chain
+from utils import get_output_shape
+import numpy as np
 
-from keras.layers import Dense, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization
+from keras.layers import Dense, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape
 
 
 def create_encoding_layers(units = [128, 64, 32]):
@@ -31,3 +33,19 @@ def create_decoding_conv_pool_layers(kernels = [8, 8, 16]):
     pool = [UpSampling2D((2, 2)) for k in kernels]
     last = Conv2D(1, (3, 3), activation='sigmoid', padding='same')
     return list(chain(*zip(conv, pool))) + [last]
+
+
+def get_encoder_layers(encoder):
+    """
+    Returns encoder connected layers with last one squashed to (n,1) in case of conv
+    :param encoder: 
+    :return: encoder layers 
+    """
+    result = [encoder]
+    # reshape in case of conv encoder output
+    encoder_output_shape = get_output_shape(encoder)
+    if len(encoder_output_shape) > 2:
+        new_shape = (-1, np.prod(encoder_output_shape))
+        result.append(Reshape(new_shape))
+
+    return result
