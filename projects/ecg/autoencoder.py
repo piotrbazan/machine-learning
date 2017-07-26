@@ -6,8 +6,46 @@ import numpy as np
 import os.path as path
 from plots import plot_loss_accuracy, plot_ecg
 
+
 def weights_path(filename):
     return path.join('weights', filename)
+
+
+def get_input_shape(model):
+    return model.layers[0].input_shape[1:]
+
+
+def reshape_inputs(x_train, x_test, shape):
+    x_train = np.reshape(x_train, (-1,) + shape)
+    x_test = np.reshape(x_test, (-1,) + shape)
+    return x_train, x_test
+
+
+def connect_layers(input, layers):
+    for i, l in enumerate(layers):
+        if i == 0:
+            layer = l(input)
+        else:
+            layer = l(layer)
+    return layer
+
+
+def load_weights(model, filename, load_prev):
+    if filename is not None and load_prev:
+        try:
+            model.load_weights(weights_path(filename))
+            print('Successfully loaded weights')
+        except Exception as e:
+            print('Can\'t load weights to model', e)
+
+
+def save_weights(model, filename):
+    if filename is not None:
+        try:
+            model.save_weights(weights_path(filename))
+        except Exception as e:
+            print('Can\'t save weights to model', e)
+
 
 def create_encoding_layers(units = [128, 64, 32]):
     return [Dense(u, activation='relu') for u in units]
@@ -15,6 +53,10 @@ def create_encoding_layers(units = [128, 64, 32]):
 
 def create_decoding_layers(units = [64, 128, 784]):
     return [Dense(u, activation='relu' if i < len(units) -1 else 'sigmoid') for i, u in enumerate(units)]
+
+
+def create_fc_layers(units):
+    return [Dense(u, activation='relu' if i < len(units) - 1 else 'softmax') for i, u in enumerate(units)]
 
 
 def create_encoding_conv_pool_layers(kernels = [16, 8, 8], batch_norm = True):
@@ -33,15 +75,6 @@ def create_decoding_conv_pool_layers(kernels = [8, 8, 16]):
     pool = [UpSampling2D((2, 2)) for k in kernels]
     last = Conv2D(1, (3, 3), activation='sigmoid', padding='same')
     return list(chain(*zip(conv, pool))) + [last]
-
-
-def connect_layers(input, layers):
-    for i, l in enumerate(layers):
-        if i == 0:
-            layer = l(input)
-        else:
-            layer = l(layer)
-    return layer
 
 
 def create_encoders(input_dim = 784, layers_dim = [128, 64], encoding_dim = 32):
@@ -96,31 +129,16 @@ def create_conv_encoders(input_dim = (28, 28), kernels = [16, 8, 8], encoding_di
 
     return autoencoder, encoder, decoder
 
-def get_input_shape(autoencoder):
-    return autoencoder.layers[0].input_shape[1:]
 
+def create_full_model(encoder, layers_dim = [3]):
+    x = Input(shape=get_input_shape(encoder))
+    # freeze encoder
+    encoder.trainable = False
+    predictions = connect_layers(x, [encoder] + create_fc_layers(layers_dim))
 
-def reshape_inputs(x_train, x_test, shape):
-    x_train = np.reshape(x_train, (-1,) + shape)
-    x_test = np.reshape(x_test, (-1,) + shape)
-    return x_train, x_test
-
-
-def load_weights(model, filename, load_prev):
-    if filename is not None and load_prev:
-        try:
-            model.load_weights(weights_path(filename))
-            print('Successfully loaded weights')
-        except Exception as e:
-            print('Can\'t load weights to model', e)
-
-
-def save_weights(model, filename):
-    if filename is not None:
-        try:
-            model.save_weights(weights_path(filename))
-        except Exception as e:
-            print('Can\'t save weights to model', e)
+    model = Model(inputs=x, outputs=predictions)
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    return model
 
 
 def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=True, verbose = 0):
@@ -138,6 +156,15 @@ def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=
     plot_loss_accuracy(result)
     plot_ecg(x_test[0], x_decoded[0])
     return result
+
+
+
+def fit_full_model(model, x_train, x_test, y_train, y_test, epochs = 50, verbose = 1):
+    result = model.fit(x_train, y_train, epochs=epochs, batch_size=512, shuffle=True, verbose=verbose,
+                             validation_data=(x_test, y_test))
+    plot_loss_accuracy(result)
+    return result
+
 
 #-----------------------    plotting ---------------------------------------------
 
