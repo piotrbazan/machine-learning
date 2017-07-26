@@ -92,7 +92,6 @@ def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=
     return result
 
 
-
 def fit_full_model(model, x_train, x_test, y_train, y_test, epochs = 50, filename=None, load_prev=True, verbose = 1):
     x_train, x_test = reshape_inputs(x_train, x_test, get_input_shape(model))
     y_train, y_test = reshape_inputs(y_train, y_test, get_output_shape(model))
@@ -104,3 +103,4 @@ def fit_full_model(model, x_train, x_test, y_train, y_test, epochs = 50, filenam
 
     plot_loss_accuracy(result)
     return result
+

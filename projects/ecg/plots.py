@@ -61,11 +61,14 @@ def plot_validation_diagram(model, classes, ann, sig, start, stop):
     plt.figure(figsize=default_fig_size)
     plt.plot(sig['MLII'][start:stop])
     a = ann[(ann['Sample'] > start) & (ann['Sample'] < stop)]
-    label_pos = start - (stop - start) / 10
-    plt.text(label_pos , 0.40, 'Actual', fontsize=12)
-    plt.text(label_pos, 0.35, 'Prediction', fontsize=12)
+    
+    label_x = start - (stop - start) / 10
+    label_y = sig['MLII'][start:stop].min() *.7
+    plt.text(label_x , label_y, 'Actual', fontsize=12)
+    plt.text(label_x, label_y - 0.05, 'Prediction', fontsize=12)
+
     for i in a.index:
-        plt.text(a.loc[i]['Sample'], 0.4, a.loc[i]['Type'], fontsize=12)
+        plt.text(a.loc[i]['Sample'], label_y, a.loc[i]['Type'], fontsize=12)
 
     frames = []
     for i in range(start, stop - 784, 10):
@@ -76,7 +79,7 @@ def plot_validation_diagram(model, classes, ann, sig, start, stop):
     for i, _ in enumerate(frames):        
         type = classes[pred[i]]
         if type != 'NB':
-            plt.text(start + 784 / 2 + i * 10, 0.35, type, fontsize=12)
+            plt.text(start + 784 / 2 + i * 10, label_y -.05, type, fontsize=12)
 
     ax = plt.gca()
     ax.get_yaxis().set_visible(False)
