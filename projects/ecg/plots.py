@@ -29,33 +29,28 @@ def plot_ecg(e1, e2):
     plt.show()
 
 
-    
+def hide_axes(ax):
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+
+
 def plot_diagrams(x_test, x_decoded):
-        n, figsize = 10, (20, 3)
-        plt.figure(figsize=figsize)
-        for i in range(n):
-            ax = plt.subplot(2, n, i + 1)
-            plt.imshow(x_test[i].reshape(28, 28))
-            plt.gray()
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-            ax = plt.subplot(2, n, i + 1 + n)
-            plt.imshow(x_decoded[i].reshape(28, 28))
-            plt.gray()
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-        plt.show()
-        plt.figure(figsize=figsize)
-        for i in range(n):
-            ax = plt.subplot(2, n, i + 1)
-            plt.plot(x_test[i].reshape((784)))
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-            ax = plt.subplot(2, n, i + 1 + n)
-            plt.plot(x_decoded[i].reshape((784)))
-            ax.get_xaxis().set_visible(False)
-            ax.get_yaxis().set_visible(False)
-        plt.show()
+    n, figsize = 5, (16, 3)
+    plt.figure(figsize=figsize)
+    for i in range(n):
+        ax = plt.subplot(2, 2 * n, i + 1)
+        plt.imshow(x_test[i].reshape(28, 28))
+        hide_axes(ax)
+        ax = plt.subplot(2, 2* n, i + 1 + n)
+        plt.plot(x_test[i].reshape((784)))
+        hide_axes(ax)
+        ax = plt.subplot(2, 2 * n, i + 1 + 2* n)
+        plt.imshow(x_decoded[i].reshape(28, 28))
+        hide_axes(ax)                   
+        ax = plt.subplot(2, 2* n, i + 1 + 3*n)
+        plt.plot(x_decoded[i].reshape((784)))
+        hide_axes(ax)
+    plt.show()
 
     
 def plot_validation_diagram(model, classes, ann, sig, start, stop):
