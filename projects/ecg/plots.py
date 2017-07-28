@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 default_fig_size = (14, 3)
 
@@ -13,30 +14,68 @@ def hide_axes(ax):
     ax.get_yaxis().set_visible(False)
 
 
+def plot_samples(data, beat_types = ['A', 'R', '/', 'V', 'L', 'N'], delta=392):
+    for d in data:
+        plt.figure(figsize=(14, 2))
+        ann = d['annotations']
+        sig = d['signals']
+        samples = ann[ann['Type'].isin(beat_types)]['Sample']
+        for j, sample in enumerate(samples[5:10]):
+            plt.subplot(1, 5, 1 + j)
+            for signal in sig.columns[1:]:
+                signal_window = sig[signal][sample - delta:sample + delta]
+                plt.plot(signal_window, label=signal)
+            plt.legend()
+
+
+def plot_avg(signals, sample, delta = 392):
+    plt.figure(figsize=(16, 4))
+    sig1 = signals['MLII'][sample - delta:sample + delta]
+    for j, k in enumerate([3, 5, 7]):
+        plt.subplot(1, 3, 1 + j)
+        s1 = [np.mean(sig1[i:i + k]) for i, _ in enumerate(sig1)]
+        plt.plot(sig1.values)
+        plt.plot(s1, label='Avg ' + str(k))
+        plt.legend()
+
+def plot_ewma(signals, sample, delta=392):
+    plt.figure(figsize=(16, 4))
+    sig1 = signals['MLII'][sample - delta:sample + delta]
+    for j, k in enumerate([1, 3, 5]):
+        plt.subplot(1, 3, 1 + j)
+        sig1.plot()
+        plt.plot(pd.ewma(sig1, k, adjust=False), label='Ewma ' + str(k))
+        plt.legend()
+
+
 def plot_loss_ecg(result, x_test, x_decoded):
     plt.figure(figsize=default_fig_size)
-    plt.subplot(1,2,1)
+    ax = plt.subplot(1,2,1)
+    ax.set_title('Autoencoder loss')
     plt.plot(result.history['loss'], label='train loss')
     plt.plot(result.history['val_loss'], label='validation loss')
     plt.legend()
     ax = plt.subplot(1, 2, 2)
-    e1, e2 = x_test[0], x_decoded[0]
+    ax.set_title('Example of encoded-decoded sample')
+    e1, e2 = x_test[10], x_decoded[10]
     plt.plot(e1.reshape((784)))
     plt.plot(e2.reshape((784)))
     hide_axes(ax)
-
+    plt.show()
 
 def plot_loss_accuracy(result):
     plt.figure(figsize=default_fig_size)
-    plt.subplot(1,2,1)
+    ax = plt.subplot(1,2,1)
+    ax.set_title('Full model loss')
     plt.plot(result.history['loss'], label='train loss')
     plt.plot(result.history['val_loss'], label='validation loss')
     plt.legend()
-    plt.subplot(1, 2, 2)
+    ax = plt.subplot(1, 2, 2)
+    ax.set_title('Full model accuracy')
     plt.plot(result.history['acc'], label='train acc')
     plt.plot(result.history['val_acc'], label='validation acc')
     plt.legend()
-
+    plt.show()
 
 def plot_diagrams(x_test, x_decoded):
     n = 5

@@ -127,34 +127,3 @@ def create_features_labels(data, window_size=784, non_beats_per_beat = 9, beat_t
     return x_train, y_train
 
 
-def plot_samples(data, delta=392):
-    for d in data:
-        plt.figure(figsize=(14, 3))
-        ann = d['annotations']
-        sig = d['signals']
-        samples = ann[ann['Type'].isin(['A', 'N'])]['Sample']
-        for j, sample in enumerate(samples[5:10]):
-            plt.subplot(1, 5, 1 + j)
-            for signal in sig.columns[1:]:
-                signal_window = sig[signal][sample - delta:sample + delta]
-                plt.plot(signal_window, label=signal)
-            plt.legend()
-
-def plot_avg(signals, sample, delta = 392):
-    plt.figure(figsize=(16, 4))
-    sig1 = signals['MLII'][sample - delta:sample + delta]
-    for j, k in enumerate([3, 5, 7]):
-        plt.subplot(1, 3, 1 + j)
-        s1 = [np.mean(sig1[i:i + k]) for i, _ in enumerate(sig1)]
-        plt.plot(sig1.values)
-        plt.plot(s1, label='Avg ' + str(k))
-        plt.legend()
-
-def plot_ewma(signals, sample, delta=392):
-    plt.figure(figsize=(16, 4))
-    sig1 = signals['MLII'][sample - delta:sample + delta]
-    for j, k in enumerate([1, 3, 5]):
-        plt.subplot(1, 3, 1 + j)
-        sig1.plot()
-        plt.plot(pd.ewma(sig1, k, adjust=False), label='Ewma ' + str(k))
-        plt.legend()
