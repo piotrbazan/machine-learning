@@ -74,7 +74,7 @@ def safe_random(i, non_beat_margin, delta, size):
             return candidate
 
 
-def create_features(data, window_size=784):
+def create_features(data, window_size=784, beat_types = SELECTED_BEAT_TYPES):
     """
     Creates features based on annotation data. There are 2 types of data:
     N - normal beat
@@ -87,7 +87,7 @@ def create_features(data, window_size=784):
     for d in data:
         ann, sig = d['annotations'], d['signals']
         sig_size = len(sig)
-        for beat_type in SELECTED_BEAT_TYPES:
+        for beat_type in beat_types:
             for i in ann[ann['Type'] == beat_type]['Sample']:
                 if delta <= i < sig_size - delta:
                     x.append(np.array(sig['MLII'][i - delta:i + delta]))
@@ -95,7 +95,7 @@ def create_features(data, window_size=784):
     return np.array(x)
 
 
-def create_features_labels(data, window_size=784, non_beats_per_beat = 9):
+def create_features_labels(data, window_size=784, non_beats_per_beat = 9, beat_types = SELECTED_BEAT_TYPES):
     """
     Creates features and labels based on annotation data. There are 3 types of data:
     N - normal beat
@@ -111,7 +111,7 @@ def create_features_labels(data, window_size=784, non_beats_per_beat = 9):
     for d in data:
         ann, sig = d['annotations'], d['signals']
         sig_size = len(sig)
-        for beat_type in SELECTED_BEAT_TYPES:
+        for beat_type in beat_types:
             for i in ann[ann['Type'] == beat_type]['Sample']:
                 if delta <= i < sig_size - delta:
                     x.append(np.array(sig['MLII'][i - delta:i + delta]))
