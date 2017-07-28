@@ -1,8 +1,6 @@
 from itertools import chain
-from utils import get_output_shape
-import numpy as np
 
-from keras.layers import Dense, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Reshape, Flatten
+from keras.layers import Dense, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization
 
 
 def create_encoding_layers(units = [128, 64, 32]):

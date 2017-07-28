@@ -1,10 +1,9 @@
-from keras.layers import Input, Reshape
+from keras.layers import Flatten, Input, Dropout
 from keras.models import Model, Sequential
+
 from layers import *
-from utils import *
-import matplotlib.pyplot as plt
 from plots import plot_loss_accuracy, plot_loss_ecg, plot_diagrams
-from keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, BatchNormalization, Input, Dropout
+from utils import *
 
 
 def create_encoders(input_dim = 784, layers_dim = [128, 64], encoding_dim = 32):
@@ -78,11 +77,11 @@ def create_full_model(encoder, layers_dim = [3]):
 
 
 def create_seq_model(filters, units, dropout = 0.):
-    conv = [Conv2D(k, (3, 3), activation='relu', padding='same', 
-                   input_shape = (28, 28, 1) if i == 0 else ()) for i, k in enumerate(filters)]
+    conv = [Conv2D(f, (3, 3), activation='relu', padding='same',
+                   input_shape = (28, 28, 1) if i == 0 else ()) for i, f in enumerate(filters)]
 
-    pool = [MaxPooling2D((2, 2), padding='same') for k in filters]
-    bn = [BatchNormalization() for k in filters]
+    pool = [MaxPooling2D((2, 2), padding='same') for f in filters]
+    bn = [BatchNormalization() for f in filters]
     conv_layers = list(chain(*zip(conv, bn, pool)))
     dense = [Dense(u, activation='relu') for u in units]
     if dropout:
