@@ -33,21 +33,21 @@ def create_encoders(input_dim = 784, layers_dim = [128, 64], encoding_dim = 32):
     return autoencoder, encoder, decoder
 
 
-def create_conv_encoders(input_dim = (28, 28), kernels = [16, 8, 8], encoding_dim = (4, 4)):
+def create_conv_encoders(input_dim = (28, 28), filters = [16, 8, 8], encoding_dim = (4, 4)):
     """
     Creates convolution autoencoder, encoder, decoder
     :param input_dim: 
-    :param kernels: 
+    :param filters: 
     :param encoding_dim: 
     :return: autoencoder, encoder, decoder
     """
 
     normal_input = Input(shape=input_dim + (1,), name='normal_input')  # adapt this if using `channels_first` image data format
-    encoded_input = Input(shape=(encoding_dim + (kernels[-1],)), name = 'encoded_input')
+    encoded_input = Input(shape=(encoding_dim + (filters[-1],)), name ='encoded_input')
 
-    encoding_layers = create_encoding_conv_pool_layers(kernels)
-    kernels.reverse()
-    decoding_layers = create_decoding_conv_pool_layers(kernels)
+    encoding_layers = create_encoding_conv_pool_layers(filters)
+    filters.reverse()
+    decoding_layers = create_decoding_conv_pool_layers(filters)
 
     encoded = connect_layers(normal_input, encoding_layers)
     decoded = connect_layers(encoded, decoding_layers)
