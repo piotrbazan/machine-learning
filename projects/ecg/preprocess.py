@@ -122,6 +122,15 @@ def create_features_labels(data, window_size=784, non_beats_per_beat = 9):
     return x_train, y_train
 
 
+def display_beat_stats(data):
+    df = []
+    for i, d in enumerate(data):
+        d = d['annotations']
+        df.append((len(d[d['Type'] == 'N']), len(d[d['Type'] == 'A'])))
+    df = pd.DataFrame(df, columns = ['N', 'A'])    
+    display(df)
+
+
 def plot_samples(data, delta=392):
     for d in data:
         plt.figure(figsize=(14, 3))
