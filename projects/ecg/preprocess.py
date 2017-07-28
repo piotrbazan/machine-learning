@@ -5,6 +5,8 @@ import os.path as path
 from sklearn.preprocessing import MinMaxScaler
 
 BEAT_TYPES = '?,/,a,A,B,e,E,f,F,j,J,L,n,N,Q,r,R,S,V'.split(',')
+#SELECTED_BEAT_TYPES = ['A', 'R', '/', 'V', 'L', 'N']
+SELECTED_BEAT_TYPES = ['V', 'N']
 
 def ann_path(i, clean=False):
     if clean:
@@ -21,9 +23,6 @@ def sig_path(i, clean=False):
 
 
 def load_data(indices = [0, 1]):
-    """
-    Datasets with missing MLII signal: 2, 4, 13
-    """
     result = []
     for i in indices:
         ann = pd.read_csv(ann_path(i))
@@ -64,7 +63,7 @@ def data_stats(data):
         for t in BEAT_TYPES:
            stat[t] = len(d[d['Type'] == t])
         df.append(stat)
-    return pd.DataFrame(df, columns = types)    
+    return pd.DataFrame(df, columns = BEAT_TYPES)    
 
 
 def safe_random(i, non_beat_margin, delta, size):
@@ -88,7 +87,7 @@ def create_features(data, window_size=784):
     for d in data:
         ann, sig = d['annotations'], d['signals']
         sig_size = len(sig)
-        for beat_type in ['N', 'A']:
+        for beat_type in SELECTED_BEAT_TYPES:
             for i in ann[ann['Type'] == beat_type]['Sample']:
                 if delta <= i < sig_size - delta:
                     x.append(np.array(sig['MLII'][i - delta:i + delta]))
@@ -112,7 +111,7 @@ def create_features_labels(data, window_size=784, non_beats_per_beat = 9):
     for d in data:
         ann, sig = d['annotations'], d['signals']
         sig_size = len(sig)
-        for beat_type in ['N', 'A']:
+        for beat_type in SELECTED_BEAT_TYPES:
             for i in ann[ann['Type'] == beat_type]['Sample']:
                 if delta <= i < sig_size - delta:
                     x.append(np.array(sig['MLII'][i - delta:i + delta]))
