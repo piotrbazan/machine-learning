@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import os.path as path
 from sklearn.preprocessing import MinMaxScaler
 
+BEAT_TYPES = '?,/,a,A,B,e,E,f,F,j,J,L,n,N,Q,r,R,S,V'.split(',')
+
 def ann_path(i, clean=False):
     if clean:
         return path.join('dataset', '%d.ann.clean.gz' % i)
@@ -38,27 +40,31 @@ def load_clean_data(indices=[0, 1], use_cache = True):
             ann = pd.read_pickle(ann_path(i, True), compression='gzip')
             sig = pd.read_pickle(sig_path(i, True), compression='gzip')
         else:
-            ann = pd.read_csv(ann_path(i))
-            ann.drop(['Sub', 'Chan', 'Num', 'Aux'], axis=1, inplace=True)
-            sig = pd.read_csv(sig_path(i))
-            sig = sig[['sample', 'MLII']]
-            scaler = MinMaxScaler()
-            sig[['MLII']] = scaler.fit_transform(sig[['MLII']])
-            #             s = np.array([np.mean(s[i:i + 5]) for i, _ in enumerate(s)])
-            ann.to_pickle(ann_path(i, True), compression='gzip')
-            sig.to_pickle(sig_path(i, True), compression='gzip')
+            try:
+                ann = pd.read_csv(ann_path(i))
+                ann.drop(['Sub', 'Chan', 'Num', 'Aux'], axis=1, inplace=True)
+                sig = pd.read_csv(sig_path(i))
+                sig = sig[['sample', 'MLII']]
+                scaler = MinMaxScaler()
+                sig[['MLII']] = scaler.fit_transform(sig[['MLII']])
+                #             s = np.array([np.mean(s[i:i + 5]) for i, _ in enumerate(s)])
+                ann.to_pickle(ann_path(i, True), compression='gzip')
+                sig.to_pickle(sig_path(i, True), compression='gzip')
+            except:
+                print('Error while parsing file inxed=%d' % i)
         result.append({'annotations': ann, 'signals': sig})
     return result
 
 
 def data_stats(data):
+    df = []
     for i, d in enumerate(data):
-        print('Data: %d' % i)
-        print('Signals:', (str(d['signals'].columns[1:])))
-        ann = d['annotations']
-        N = len(ann[ann['Type'] == 'N'])
-        A = len(ann[ann['Type'] == 'A'])
-        print('Normal beats: %d, arrhythmia: %d' % (N, A))
+        d = d['annotations']
+        stat = {}
+        for t in BEAT_TYPES:
+           stat[t] = len(d[d['Type'] == t])
+        df.append(stat)
+    return pd.DataFrame(df, columns = types)    
 
 
 def safe_random(i, non_beat_margin, delta, size):
@@ -120,15 +126,6 @@ def create_features_labels(data, window_size=784, non_beats_per_beat = 9):
     x_train = np.array(x)
     y_train = np.array(y)
     return x_train, y_train
-
-
-def display_beat_stats(data):
-    df = []
-    for i, d in enumerate(data):
-        d = d['annotations']
-        df.append((len(d[d['Type'] == 'N']), len(d[d['Type'] == 'A'])))
-    df = pd.DataFrame(df, columns = ['N', 'A'])    
-    display(df)
 
 
 def plot_samples(data, delta=392):
