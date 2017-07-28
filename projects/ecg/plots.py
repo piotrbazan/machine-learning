@@ -57,18 +57,19 @@ def plot_diagrams(x_test, x_decoded):
     plt.show()
 
     
-def plot_validation_diagram(model, classes, ann, sig, start, stop):
+def plot_validation_diagram(model, classes, ann, sig, start, stop, mark_pred_val = False):
     plt.figure(figsize=default_fig_size)
     plt.plot(sig['MLII'][start:stop])
     
     label_x = start - (stop - start) / 10
-    label_y = sig['MLII'][start:stop].min() *.6
-    plt.text(label_x , label_y, 'Actual', fontsize=12)
-    plt.text(label_x, label_y - 0.05, 'Prediction', fontsize=12)
+    label_y1 = sig['MLII'][start:stop].min() - sig['MLII'][start:stop].ptp() * .3
+    label_y2 = sig['MLII'][start:stop].min() - sig['MLII'][start:stop].ptp() * .4
+    plt.text(label_x , label_y1, 'Actual', fontsize=12)
+    plt.text(label_x, label_y2, 'Prediction', fontsize=12)
 
     a = ann[(ann['Sample'] > start + 784 / 2) & (ann['Sample'] < stop -784 / 2)]
     for i in a.index:
-        plt.text(a.loc[i]['Sample'], label_y, a.loc[i]['Type'], fontsize=12)
+        plt.text(a.loc[i]['Sample'], label_y1, a.loc[i]['Type'], fontsize=12)
 
     frames = []
     step = 2
@@ -76,11 +77,13 @@ def plot_validation_diagram(model, classes, ann, sig, start, stop):
         frames.append(np.array(sig['MLII'][i:i + 784]))
     frames = np.array(frames).reshape((-1,) + get_input_shape(model))
     res = model.predict(frames)
-    pred = np.argmax(res, axis=1)
+    pred_arg, pred_val = np.argmax(res, axis=1), np.max(res, axis=1) 
+ 
     for i, _ in enumerate(frames):        
-        type = classes[pred[i]]
+        type = classes[pred_arg[i]]
         if type != 'NB':
-            plt.text(start + step * i + 784 / 2, label_y -.05, type, fontsize=12)
+            color = plt.cm.coolwarm((pred_val[i])) if mark_pred_val else 'black'
+            plt.text(start + step * i + 784 / 2, label_y2, type, fontsize=12, color = color)
 
     ax = plt.gca()
     ax.get_yaxis().set_visible(False)
