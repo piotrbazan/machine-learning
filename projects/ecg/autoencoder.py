@@ -114,6 +114,8 @@ def fit_full_model(model, x_train, x_test, y_train, y_test, epochs = 50, filenam
                              validation_data=(x_test, y_test))
     save_weights(model, filename)
 
+    pred = model.predict(x_test)
     plot_loss_accuracy(result)
+
     return result
 
