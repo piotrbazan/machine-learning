@@ -35,11 +35,11 @@ def load_data(indices = [0, 1]):
 def load_clean_data(indices=[0, 1], use_cache = True):
     result = []
     for i in indices:
-        if use_cache and path.isfile(ann_path(i, True)):
-            ann = pd.read_pickle(ann_path(i, True), compression='gzip')
-            sig = pd.read_pickle(sig_path(i, True), compression='gzip')
-        else:
-            try:
+        try:
+            if use_cache and path.isfile(ann_path(i, True)):
+                ann = pd.read_pickle(ann_path(i, True), compression='gzip')
+                sig = pd.read_pickle(sig_path(i, True), compression='gzip')
+            else:
                 ann = pd.read_csv(ann_path(i))
                 ann.drop(['Sub', 'Chan', 'Num', 'Aux'], axis=1, inplace=True)
                 sig = pd.read_csv(sig_path(i))
@@ -49,8 +49,8 @@ def load_clean_data(indices=[0, 1], use_cache = True):
                 #             s = np.array([np.mean(s[i:i + 5]) for i, _ in enumerate(s)])
                 ann.to_pickle(ann_path(i, True), compression='gzip')
                 sig.to_pickle(sig_path(i, True), compression='gzip')
-            except:
-                print('Error while parsing file inxed=%d' % i)
+        except Exception as e:
+            print('Error while parsing file inxed=%d , %s' % (i, str(e)))
         result.append({'annotations': ann, 'signals': sig})
     return result
 
