@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import itertools
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support, classification_report
+
 default_fig_size = (14, 3)
 
 
@@ -38,6 +40,7 @@ def plot_avg(signals, sample, delta = 392):
         plt.plot(s1, label='Avg ' + str(k))
         plt.legend()
 
+
 def plot_ewma(signals, sample, delta=392):
     plt.figure(figsize=(16, 4))
     sig1 = signals['MLII'][sample - delta:sample + delta]
@@ -48,35 +51,79 @@ def plot_ewma(signals, sample, delta=392):
         plt.legend()
 
 
-def plot_loss_ecg(result, x_test, x_decoded):
-    plt.figure(figsize=default_fig_size)
-    ax = plt.subplot(1,2,1)
-    ax.set_title('Autoencoder loss')
-    plt.plot(result.history['loss'], label='train loss')
-    plt.plot(result.history['val_loss'], label='validation loss')
-    plt.legend()
-    ax = plt.subplot(1, 2, 2)
-    ax.set_title('Example of encoded-decoded sample')
-    e1, e2 = x_test[10], x_decoded[10]
-    plt.plot(e1.reshape((784)), label='Original')
-    plt.plot(e2.reshape((784)), label='Decoded')
-    plt.legend()
-    hide_axes(ax)
-    plt.show()
-
-def plot_loss_accuracy(result):
-    plt.figure(figsize=default_fig_size)
-    ax = plt.subplot(1,2,1)
-    ax.set_title('Full model loss')
-    plt.plot(result.history['loss'], label='train loss')
-    plt.plot(result.history['val_loss'], label='validation loss')
-    plt.legend()
-    ax = plt.subplot(1, 2, 2)
+def plot_accuracy(result, ax):
     ax.set_title('Full model accuracy')
     plt.plot(result.history['acc'], label='train acc')
     plt.plot(result.history['val_acc'], label='validation acc')
     plt.legend()
+
+
+def plot_loss(result, ax, title):
+    ax.set_title(title)
+    plt.plot(result.history['loss'], label='train loss')
+    plt.plot(result.history['val_loss'], label='validation loss')
+    plt.legend()
+
+
+def plot_encoded_decoded(encoded, decoded, ax):
+    ax.set_title('Example of encoded-decoded sample')
+    e1, e2 = encoded[10], decoded[10]
+    plt.plot(e1.reshape((784)), label='Original')
+    plt.plot(e2.reshape((784)), label='Decoded')
+    plt.legend()
+    hide_axes(ax)
+
+
+def plot_loss_ecg(result, x_test, x_decoded):
+    plt.figure(figsize=default_fig_size)
+    ax = plt.subplot(1,2,1)
+    plot_loss(result, ax, 'Autoencoder loss')
+    ax = plt.subplot(1, 2, 2)
+    plot_encoded_decoded(x_test, x_decoded, ax)
     plt.show()
+
+
+def plot_cnf_matrix(y_test, y_pred, ax, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    true, pred = np.argmax(y_test, axis=1), np.argmax(y_pred, axis=1)
+    cm = confusion_matrix(true, pred)
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    ax.set_title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j],
+                 horizontalalignment="center",
+                 color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    # print(precision_recall_fscore_support(true, pred, average='micro'))
+    print(classification_report(true, pred, target_names=classes))
+
+
+def plot_loss_accuracy_cnf_matrix(result, y_test, y_pred, classes):
+    plt.figure(figsize=default_fig_size)
+    ax = plt.subplot(1, 3, 1)
+    plot_loss(result, ax, 'Full model loss')
+    ax = plt.subplot(1, 3, 2)
+    plot_accuracy(result, ax)
+    ax = plt.subplot(1, 3, 3)
+    plot_cnf_matrix(y_test, y_pred, ax, classes)
+    plt.show()
+
+
 
 def plot_diagrams(x_test, x_decoded):
     n = 5
@@ -90,46 +137,11 @@ def plot_diagrams(x_test, x_decoded):
         hide_axes(ax)
         ax = plt.subplot(2, 2 * n, i + 1 + 2* n)
         plt.imshow(x_decoded[i].reshape(28, 28))
-        hide_axes(ax)                   
+        hide_axes(ax)
         ax = plt.subplot(2, 2* n, i + 1 + 3*n)
         plt.plot(x_decoded[i].reshape((784)))
         hide_axes(ax)
     plt.show()
-
-
-
-def plot_confusion_matrix(cm, classes,
-                          normalize=False,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
-    """
-    This function prints and plots the confusion matrix.
-    Normalization can be applied by setting `normalize=True`.
-    """
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
-
-    if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        print("Normalized confusion matrix")
-    else:
-        print('Confusion matrix, without normalization')
-
-    print(cm)
-
-    thresh = cm.max() / 2.
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, cm[i, j],
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
-
-    plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
 
     
 def plot_validation_diagram(model, classes, ann, sig, start, stop, mark_pred_val = False):

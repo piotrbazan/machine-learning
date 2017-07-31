@@ -2,7 +2,7 @@ from keras.layers import Flatten, Input, Dropout
 from keras.models import Model, Sequential
 
 from layers import *
-from plots import plot_loss_accuracy, plot_loss_ecg, plot_diagrams
+from plots import plot_loss_accuracy_cnf_matrix, plot_loss_ecg, plot_diagrams
 from utils import *
 
 
@@ -105,7 +105,7 @@ def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=
     return result
 
 
-def fit_full_model(model, x_train, x_test, y_train, y_test, epochs = 50, filename=None, load_prev=True, verbose = 1):
+def fit_full_model(model, x_train, x_test, y_train, y_test, classes, epochs = 50, filename=None, load_prev=True, verbose = 1):
     x_train, x_test = reshape_inputs(x_train, x_test, get_input_shape(model))
     y_train, y_test = reshape_inputs(y_train, y_test, get_output_shape(model))
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -114,8 +114,6 @@ def fit_full_model(model, x_train, x_test, y_train, y_test, epochs = 50, filenam
                              validation_data=(x_test, y_test))
     save_weights(model, filename)
 
-    pred = model.predict(x_test)
-    plot_loss_accuracy(result)
-
+    plot_loss_accuracy_cnf_matrix(result, y_test, model.predict(x_test), classes)
     return result
 
