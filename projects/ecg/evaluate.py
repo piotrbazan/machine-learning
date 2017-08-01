@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
+from sklearn.dummy import  DummyClassifier
 
 from autoencoder import create_full_model, fit_full_model, create_encoders, fit_encoders, create_conv_encoders, \
     create_seq_model, predict
@@ -24,6 +25,19 @@ def get_stats(model, x_test, y_test, config):
     return stats
 
 
+def evaluate_dummy(x_train, x_test, y_train, y_test, classes, ann, sig):
+    clf = DummyClassifier(random_state=42)
+    clf.fit(x_train, y_train)
+    y_true, y_pred = np.argmax(y_test, axis=1), np.argmax(clf.predict(x_test), axis=1)
+    p, r, f, s = precision_recall_fscore_support(y_true, y_pred)
+    stats = {
+        'model': clf,
+        'val_acc': accuracy_score(y_true, y_pred),
+        'precision': np.mean(p),
+        'recall': np.mean(r),
+        'f1_score': np.mean(f)
+    }
+    return stats
 
 
 def evaluate_full_model(encoder, encoder_name, config, x_train, x_test, y_train, y_test, classes, ann, sig, epochs=2, load_prev = False):

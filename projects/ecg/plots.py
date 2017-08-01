@@ -162,6 +162,7 @@ def plot_validation_diagram(model, classes, ann, sig, start, stop, mark_pred_val
     step = 2
     for i in range(start, stop - 784, step):
         frames.append(np.array(sig['MLII'][i:i + 784]))
+
     frames = np.array(frames).reshape((-1,) + get_input_shape(model))
     res = model.predict(frames)
     pred_arg, pred_val = np.argmax(res, axis=1), np.max(res, axis=1) 
