@@ -32,8 +32,7 @@ def create_encoders(input_dim = 784, layers_dim = [128, 64], encoding_dim = 32):
     return autoencoder, encoder, decoder
 
 
-def create_conv_encoders(input_dim = (28, 28), filters = [16, 8, 8], encoding_dim = (4, 4)):
-    print(input_dim, filters, encoding_dim)
+def create_conv_encoders(input_dim = (28, 28), filters = [16, 8, 8], encoding_dim = (4, 4)):   
     """
     Creates convolution autoencoder, encoder, decoder
     :param input_dim: 
