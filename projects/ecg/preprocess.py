@@ -52,7 +52,7 @@ def load_clean_data(indices=[0, 1], use_cache = True):
         except Exception as e:
             print('Error while parsing file inxed=%d , %s' % (i, str(e)))
         result.append({'annotations': ann, 'signals': sig})
-    return result
+    return np.array(result)
 
 
 def data_stats(data):
