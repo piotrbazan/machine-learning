@@ -47,7 +47,7 @@ def plot_ewma(signals, sample, delta=392):
     for j, k in enumerate([1, 3, 5]):
         plt.subplot(1, 3, 1 + j)
         sig1.plot()
-        plt.plot(pd.ewma(sig1, k, adjust=False), label='Ewma ' + str(k))
+        plt.plot(sig1.ewm(com=k,min_periods=0,adjust=False,ignore_na=False).mean(), label='Ewma ' + str(k))
         plt.legend()
 
 
@@ -110,7 +110,7 @@ def plot_cnf_matrix(y_test, y_pred, ax, classes, normalize=False, title='Confusi
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     # print(precision_recall_fscore_support(true, pred, average='micro'))
-    print(classification_report(true, pred, target_names=classes))
+#    print(classification_report(true, pred, target_names=classes))
 
 
 def plot_loss_accuracy_cnf_matrix(result, y_test, y_pred, classes):
@@ -144,7 +144,7 @@ def plot_diagrams(x_test, x_decoded):
     plt.show()
 
     
-def plot_validation_diagram(model, classes, ann, sig, start, stop, mark_pred_val = False):
+def plot_validation_diagram(model, classes, ann, sig, start, stop, beat_types = ['N', 'A'], mark_pred_val = False):
     plt.figure(figsize=default_fig_size)
     plt.plot(sig['MLII'][start:stop])
     
@@ -156,7 +156,8 @@ def plot_validation_diagram(model, classes, ann, sig, start, stop, mark_pred_val
 
     a = ann[(ann['Sample'] > start + 784 / 2) & (ann['Sample'] < stop -784 / 2)]
     for i in a.index:
-        plt.text(a.loc[i]['Sample'], label_y1, a.loc[i]['Type'], fontsize=12)
+        if a.loc[i]['Type'] in beat_types:
+            plt.text(a.loc[i]['Sample'], label_y1, a.loc[i]['Type'], fontsize=12)
 
     frames = []
     step = 2
