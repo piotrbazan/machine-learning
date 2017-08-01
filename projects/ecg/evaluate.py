@@ -24,6 +24,8 @@ def get_stats(model, x_test, y_test, config):
     return stats
 
 
+
+
 def evaluate_full_model(encoder, encoder_name, config, x_train, x_test, y_train, y_test, classes, ann, sig, epochs=2, load_prev = False):
     stats = []
     for layers_dim in config:
@@ -51,25 +53,15 @@ def evaluate_seq_models(config, x_train, x_test, y_train, y_test, classes, ann, 
     return stats
 
 
-def evaluate_nn_models(config, x_train, x_test, y_train, y_test, classes, ann, sig, ae_epochs=1, full_model_epochs=1, load_prev_ae=True, load_prev_full=True):
+def evaluate_ae_models(config, x_train, x_test, y_train, y_test, classes, ann, sig, ae_epochs=1, full_model_epochs=1, load_prev_ae=True, load_prev_full=True):
     result = []
-    for layers_dim in config['ae']:
-        ae_name = str(layers_dim)
+    create_encoders_func = create_conv_encoders if config['use_conv'] else create_encoders
+    for cfg in config['ae']:
+        ae_name = str(cfg)
+        encoders = create_encoders_func(*cfg)
         print('Running autoencoder with config:', ae_name)
-        encoders = create_encoders(*layers_dim)
         fit_encoders(encoders, x_train, x_test, epochs=ae_epochs, filename=ae_name + '.h5', load_prev=load_prev_ae, verbose=0)
 
         result.extend(evaluate_full_model(encoders[1], ae_name, config['fc'], x_train, x_test, y_train, y_test, classes, ann, sig, epochs=full_model_epochs, load_prev=load_prev_full))
 
-    return result
-
-
-def evaluate_conv_models(config, x_train, x_test, y_train, y_test, classes, ann, sig, ae_epochs=1, full_model_epochs=1, load_prev_ae=True, load_prev_full=True):
-    result = []
-    ae_name = 'conv_16_8_8'
-    print('Running convolution autoencoder:', ae_name)
-    encoders = create_conv_encoders()
-    fit_encoders(encoders, x_train, x_test, epochs=ae_epochs, filename=ae_name + '.h5', load_prev=load_prev_ae, verbose=0)
-
-    result.extend(evaluate_full_model(encoders[1], ae_name, config['fc'], x_train, x_test, y_train, y_test, classes, ann, sig, epochs=full_model_epochs, load_prev=load_prev_full))
     return result
