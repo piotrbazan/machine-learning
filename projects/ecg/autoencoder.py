@@ -91,8 +91,8 @@ def create_seq_model(filters, units, dropout = 0.):
 
 def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=True, verbose = 0):
     autoencoder, encoder, decoder = encoders
-
     x_train, x_test = reshape_inputs(x_train, x_test, get_input_shape(autoencoder))
+
     autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
     load_weights(autoencoder, filename, load_prev)
     result = autoencoder.fit(x_train, x_train, epochs=epochs, batch_size=512, shuffle=True, verbose=verbose,
@@ -108,6 +108,7 @@ def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=
 def fit_full_model(model, x_train, x_test, y_train, y_test, classes, epochs = 50, filename=None, load_prev=True, verbose = 1):
     x_train, x_test = reshape_inputs(x_train, x_test, get_input_shape(model))
     y_train, y_test = reshape_inputs(y_train, y_test, get_output_shape(model))
+
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     load_weights(model, filename, load_prev)
     result = model.fit(x_train, y_train, epochs=epochs, batch_size=512, shuffle=True, verbose=verbose,
@@ -117,3 +118,7 @@ def fit_full_model(model, x_train, x_test, y_train, y_test, classes, epochs = 50
     plot_loss_accuracy_cnf_matrix(result, y_test, model.predict(x_test), classes)
     return result
 
+
+def predict(model, x):
+    x = reshape_input(x, get_input_shape(model))
+    return model.predict(x)

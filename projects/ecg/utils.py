@@ -1,9 +1,9 @@
 import numpy as np
 import os.path as path
 
+
 def weights_path(filename):
     return path.join('weights', filename)
-
 
 def get_input_shape(model):
     return model.layers[0].input_shape[1:]
@@ -13,9 +13,13 @@ def get_output_shape(model):
     return model.layers[-1].output_shape[1:]
 
 
+def reshape_input(x, shape):
+    return np.reshape(x, (-1,) + shape)
+
+
 def reshape_inputs(x_train, x_test, shape):
-    x_train = np.reshape(x_train, (-1,) + shape)
-    x_test = np.reshape(x_test, (-1,) + shape)
+    x_train = reshape_input(x_train, shape)
+    x_test = reshape_input(x_test, shape)
     return x_train, x_test
 
 def reshape_outputs(y_train, y_test, shape):
