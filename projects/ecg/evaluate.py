@@ -59,7 +59,7 @@ def evaluate_seq_models(config, x_train, x_test, y_train, y_test, classes, ann, 
         model_name = str(c)
         print('Running sequential model:', model_name)
         model = create_seq_model(filters=c['filters'], units=c['units'], dropout=c['dropout'])
-        fit_full_model(model, x_train, x_test, y_train, y_test, classes, epochs=epochs, filename=model_name + '.h5', load_prev=load_prev, verbose=0)
+        fit_full_model(model, x_train, x_test, y_train, y_test, classes, epochs=epochs, filename=model_name + '.h5', load_prev=load_prev, verbose=1)
 
         plot_validation(model, classes, ann, sig)
         stats.append(get_stats(model, x_test, y_test, c))

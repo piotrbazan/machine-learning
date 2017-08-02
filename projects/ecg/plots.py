@@ -5,6 +5,7 @@ import itertools
 from sklearn.metrics import confusion_matrix, precision_recall_fscore_support, classification_report
 
 default_fig_size = (14, 3)
+BEAT_TYPES = '?,/,a,A,B,e,E,f,F,j,J,L,n,N,Q,r,R,S,V'.split(',')
 
 
 def get_input_shape(model):
@@ -177,3 +178,13 @@ def plot_validation_diagram(model, classes, ann, sig, start, stop, beat_types = 
     ax = plt.gca()
     ax.get_yaxis().set_visible(False)
     plt.show()
+
+
+def plot_validation_diagrams(model, classes, validation):
+    for i, _ in enumerate(validation):
+        ann = validation[i]['annotations']
+        sig = validation[i]['signals']
+        s = ann[ann['Type'] == 'A'].sample(1).iloc[0]['Sample']
+        plot_validation_diagram(model, classes, ann, sig, s - 3000, s + 3000, mark_pred_val=True, beat_types =BEAT_TYPES)
+        if i > 5:
+            return

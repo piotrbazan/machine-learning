@@ -6,7 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 BEAT_TYPES = '?,/,a,A,B,e,E,f,F,j,J,L,n,N,Q,r,R,S,V'.split(',')
 #SELECTED_BEAT_TYPES = ['A', 'R', '/', 'V', 'L', 'N']
-SELECTED_BEAT_TYPES = ['V', 'N']
+SELECTED_BEAT_TYPES = ['A', 'N']
 
 def ann_path(i, clean=False):
     if clean:
