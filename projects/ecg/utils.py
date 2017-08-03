@@ -5,6 +5,20 @@ import os.path as path
 def weights_path(filename):
     return path.join('weights', filename)
 
+def ann_path(i, clean=False):
+    if clean:
+        return path.join('dataset', '%d.ann.clean.gz' % i)
+    else:
+        return path.join('dataset', '%d.ann.gz' % i)
+
+
+def sig_path(i, clean=False):
+    if clean:
+        return path.join('dataset', '%d.sig.clean.gz' % i)
+    else:
+        return path.join('dataset', '%d.sig.gz' % i)
+
+
 def get_input_shape(model):
     return model.layers[0].input_shape[1:]
 

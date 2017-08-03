@@ -1,25 +1,12 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import os.path as path
+from utils import ann_path, sig_path
 from sklearn.preprocessing import MinMaxScaler
 
 BEAT_TYPES = '?,/,a,A,B,e,E,f,F,j,J,L,n,N,Q,r,R,S,V'.split(',')
 #SELECTED_BEAT_TYPES = ['A', 'R', '/', 'V', 'L', 'N']
 SELECTED_BEAT_TYPES = ['A', 'N']
-
-def ann_path(i, clean=False):
-    if clean:
-        return path.join('dataset', '%d.ann.clean.gz' % i)
-    else:
-        return path.join('dataset', '%d.ann.gz' % i)
-
-
-def sig_path(i, clean=False):
-    if clean:
-        return path.join('dataset', '%d.sig.clean.gz' % i)
-    else:
-        return path.join('dataset', '%d.sig.gz' % i)
 
 
 def load_data(indices = [0, 1]):

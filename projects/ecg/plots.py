@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
+import random
 import itertools
 from sklearn.metrics import confusion_matrix, precision_recall_fscore_support, classification_report
 
@@ -17,14 +17,15 @@ def hide_axes(ax):
     ax.get_yaxis().set_visible(False)
 
 
-def plot_samples(data, beat_types = ['A', 'R', '/', 'V', 'L', 'N'], delta=392):
+def plot_samples(data, beat_types = ['A', 'R', '/', 'V', 'L', 'N'], delta=392, n = 3):
     for d in data:
-        plt.figure(figsize=(14, 2))
+        plt.figure(figsize=(11, 2))
         ann = d['annotations']
         sig = d['signals']
         samples = ann[ann['Type'].isin(beat_types)]['Sample']
-        for j, sample in enumerate(samples[5:10]):
-            plt.subplot(1, 5, 1 + j)
+        for j in range(n):
+            sample = random.choice(samples)
+            plt.subplot(1, n, 1 + j)
             for signal in sig.columns[1:]:
                 signal_window = sig[signal][sample - delta:sample + delta]
                 plt.plot(signal_window, label=signal)
