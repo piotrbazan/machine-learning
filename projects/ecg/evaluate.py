@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from sklearn.dummy import  DummyClassifier
 
-from autoencoder import create_full_model, fit_full_model, create_encoders, fit_encoders, create_conv_encoders, \
+from models import create_full_model, fit_full_model, create_encoders, fit_encoders, create_conv_encoders, \
     create_seq_model, predict
 from plots import plot_validation_diagram
 
