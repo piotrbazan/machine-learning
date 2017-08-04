@@ -1,3 +1,10 @@
+# Machine Learning Engineer Nanodegree Capstone Project
+# Using artificial neural networks to localize and classify heartbeats in ECG.
+#
+# Author Piotr Bazan
+# August 2nd, 2017
+#
+
 from itertools import chain
 
 from keras.layers import Dense, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization

@@ -1,3 +1,10 @@
+# Machine Learning Engineer Nanodegree Capstone Project
+# Using artificial neural networks to localize and classify heartbeats in ECG.
+#
+# Author Piotr Bazan
+# August 2nd, 2017
+#
+
 from keras.layers import Flatten, Input, Dropout
 from keras.models import Model, Sequential
 
