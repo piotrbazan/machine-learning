@@ -196,3 +196,33 @@ def plot_validation_diagrams(model, classes, validation):
         plot_validation_diagram(model, classes, ann, sig, s - 3000, s + 3000, mark_pred_val=True, beat_types =BEAT_TYPES)
         if i > 5:
             return
+
+
+def detect_raw_signal(model, classes, df, start, stop):
+    plt.figure(figsize=default_fig_size)
+    plt.plot(df['S'][start:stop])
+    sig = df['S']
+
+    label_x = start - (stop - start) / 10
+    label_y = sig.min() - sig.ptp() * .3
+    plt.text(label_x, label_y, 'Prediction', fontsize=12)
+
+    frames = []
+    step = 2
+    for i in range(start, stop - 784, step):
+        array = np.array(sig[i:i + 784])
+        frames.append(array)
+
+    frames = np.array(frames).reshape((-1,) + get_input_shape(model))
+    res = model.predict(frames)
+    pred_arg, pred_val = np.argmax(res, axis=1), np.max(res, axis=1)
+
+    for i, _ in enumerate(frames):
+        type = classes[pred_arg[i]]
+        if type != 'NB':
+            color = plt.cm.coolwarm((pred_val[i]))
+            plt.text(start + step * i + 784 / 2, label_y, type, fontsize=12, color=color)
+
+    ax = plt.gca()
+    ax.get_yaxis().set_visible(False)
+    plt.show()
