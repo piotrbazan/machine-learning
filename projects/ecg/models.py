@@ -5,7 +5,7 @@
 # August 2nd, 2017
 #
 
-from keras.layers import Flatten, Input, Dropout
+from keras.layers import Input
 from keras.models import Model, Sequential
 
 from layers import *
@@ -84,16 +84,7 @@ def create_full_model(encoder, layers_dim = [3]):
 
 
 def create_seq_model(filters, units, dropout = 0.):
-    conv = [Conv2D(f, (3, 3), activation='relu', padding='same',
-                   input_shape = (28, 28, 1) if i == 0 else ()) for i, f in enumerate(filters)]
-
-    pool = [MaxPooling2D((2, 2), padding='same') for f in filters]
-    bn = [BatchNormalization() for f in filters]
-    conv_layers = list(chain(*zip(conv, bn, pool)))
-    dense = [Dense(u, activation='relu') for u in units]
-    if dropout:
-        dense.append(Dropout(rate = dropout))
-    return Sequential(conv_layers + [Flatten()] + dense + [Dense(3, activation='softmax')])
+    return Sequential(create_cnn_layers(filters, units, dropout))
 
 
 def fit_encoders(encoders, x_train, x_test, epochs=10, filename=None, load_prev=True, verbose = 0):

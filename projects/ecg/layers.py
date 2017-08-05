@@ -7,7 +7,7 @@
 
 from itertools import chain
 
-from keras.layers import Dense, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization
+from keras.layers import Dense, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Flatten, Dropout
 
 
 def create_encoding_layers(units = [128, 64, 32]):
@@ -38,3 +38,17 @@ def create_decoding_conv_pool_layers(filters = [8, 8, 16]):
     pool = [UpSampling2D((2, 2)) for f in filters]
     last = Conv2D(1, (3, 3), activation='sigmoid', padding='same')
     return list(chain(*zip(conv, pool))) + [last]
+
+
+def create_cnn_layers(filters, units, dropout):
+    conv = [Conv2D(f, (3, 3), activation='relu', padding='same',
+                   input_shape = (28, 28, 1) if i == 0 else ()) for i, f in enumerate(filters)]
+
+    pool = [MaxPooling2D((2, 2), padding='same') for f in filters]
+    bn = [BatchNormalization() for f in filters]
+    conv_layers = list(chain(*zip(conv, bn, pool)))
+    fc = [Dense(u, activation='relu') for u in units[:-1]]
+    if dropout:
+        fc.append(Dropout(rate = dropout))
+    fc.append(Dense(units[-1], activation='softmax'))
+    return conv_layers + [Flatten()] + fc
