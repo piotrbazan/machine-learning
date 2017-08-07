@@ -12,10 +12,14 @@ SELECTED_BEAT_TYPES = ['A', 'N']
 def load_data(indices = [0, 1]):
     result = []
     for i in indices:
-        ann = pd.read_csv(ann_path(i))
-        ann.drop(['Sub', 'Chan', 'Num', 'Aux'], axis = 1, inplace=True)
-        sig = pd.read_csv(sig_path(i))
-        result.append({'annotations' : ann, 'signals' : sig})
+        try:
+            ann = pd.read_csv(ann_path(i))
+            ann.drop(['Sub', 'Chan', 'Num', 'Aux'], axis = 1, inplace=True)
+            sig = pd.read_csv(sig_path(i))
+            result.append({'annotations' : ann, 'signals' : sig})
+        except Exception as e:
+            print('Error while parsing file inxed=%d , %s' % (i, str(e)))
+
     return result
 
 
@@ -36,9 +40,10 @@ def load_clean_data(indices=[0, 1], use_cache = True):
                 #             s = np.array([np.mean(s[i:i + 5]) for i, _ in enumerate(s)])
                 ann.to_pickle(ann_path(i, True), compression='gzip')
                 sig.to_pickle(sig_path(i, True), compression='gzip')
+            result.append({'annotations': ann, 'signals': sig})
         except Exception as e:
             print('Error while parsing file inxed=%d , %s' % (i, str(e)))
-        result.append({'annotations': ann, 'signals': sig})
+
     return np.array(result)
 
 
