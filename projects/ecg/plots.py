@@ -123,12 +123,13 @@ def plot_cnf_matrix(y_test, y_pred, ax, classes, normalize=False, title='Confusi
 
 
 def plot_loss_accuracy_cnf_matrix(result, y_test, y_pred, classes):
-    plt.figure(figsize=default_fig_size)
-    ax = plt.subplot(1, 3, 1)
+    plt.figure(figsize=(14,3))
+    ax = plt.subplot(1, 2, 1)
     plot_loss(result, ax, 'Full model loss')
-    ax = plt.subplot(1, 3, 2)
+    ax = plt.subplot(1, 2, 2)
     plot_accuracy(result, ax)
-    ax = plt.subplot(1, 3, 3)
+    plt.figure(figsize=(7,7))
+    ax = plt.subplot(1, 1, 1)
     plot_cnf_matrix(y_test, y_pred, ax, classes)
     plt.show()
 
