@@ -106,14 +106,14 @@ def plot_cnf_matrix(y_test, y_pred, ax, classes, normalize=False, title='Confusi
     plt.xticks(tick_marks, classes, rotation=45)
     plt.yticks(tick_marks, classes)
 
+    thresh = cm > (cm.max() / 2.)
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-
-    thresh = cm.max() / 2.
+    
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, cm[i, j],
+        plt.text(j, i, np.round(cm[i, j], 2),
                  horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
+                 color="white" if thresh[i, j] else "black")
 
     plt.tight_layout()
     plt.ylabel('True label')
@@ -128,9 +128,12 @@ def plot_loss_accuracy_cnf_matrix(result, y_test, y_pred, classes):
     plot_loss(result, ax, 'Full model loss')
     ax = plt.subplot(1, 2, 2)
     plot_accuracy(result, ax)
-    plt.figure(figsize=(7,7))
-    ax = plt.subplot(1, 1, 1)
+    plt.figure(figsize=(13, 6))
+    ax = plt.subplot(1, 2, 1)
     plot_cnf_matrix(y_test, y_pred, ax, classes)
+    ax = plt.subplot(1, 2, 2)
+    plot_cnf_matrix(y_test, y_pred, ax, classes, normalize=True)
+
     plt.show()
 
 
