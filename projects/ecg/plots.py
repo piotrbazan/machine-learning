@@ -109,7 +109,7 @@ def plot_cnf_matrix(y_test, y_pred, ax, classes, normalize=False, title='Confusi
     thresh = cm > (cm.max() / 2.)
     if normalize:
         cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-    
+
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
         plt.text(j, i, np.round(cm[i, j], 2),
                  horizontalalignment="center",
@@ -156,11 +156,11 @@ def plot_diagrams(x_test, x_decoded):
         hide_axes(ax)
     plt.show()
 
-    
+
 def plot_validation_diagram(model, classes, ann, sig, start, stop, beat_types = ['N', 'A'], mark_pred_val = False):
-    plt.figure(figsize=default_fig_size)
+    plt.figure(figsize=(16,4))
     plt.plot(sig['MLII'][start:stop])
-    
+
     label_x = start - (stop - start) / 10
     label_y1 = sig['MLII'][start:stop].min() - sig['MLII'][start:stop].ptp() * .3
     label_y2 = sig['MLII'][start:stop].min() - sig['MLII'][start:stop].ptp() * .4
@@ -179,9 +179,9 @@ def plot_validation_diagram(model, classes, ann, sig, start, stop, beat_types = 
 
     frames = np.array(frames).reshape((-1,) + get_input_shape(model))
     res = model.predict(frames)
-    pred_arg, pred_val = np.argmax(res, axis=1), np.max(res, axis=1) 
- 
-    for i, _ in enumerate(frames):        
+    pred_arg, pred_val = np.argmax(res, axis=1), np.max(res, axis=1)
+
+    for i, _ in enumerate(frames):
         type = classes[pred_arg[i]]
         if type != 'NB':
             color = plt.cm.coolwarm((pred_val[i])) if mark_pred_val else 'black'
