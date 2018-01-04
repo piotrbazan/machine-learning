@@ -31,7 +31,11 @@ def plot_samples(data, beat_types = ['A', 'R', '/', 'V', 'L', 'N'], delta=392, n
         sig = d['signals']
         samples = ann[ann['Type'].isin(beat_types)]['Sample']
         for j in range(n):
-            sample = random.choice(samples)
+            try:
+                sample = random.choice(samples)
+            except KeyError:
+                print("Key error", len(sample))
+                continue
             plt.subplot(1, n, 1 + j)
             for signal in sig.columns[1:]:
                 signal_window = sig[signal][sample - delta:sample + delta]
