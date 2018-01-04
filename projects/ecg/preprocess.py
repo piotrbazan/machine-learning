@@ -37,7 +37,6 @@ def load_clean_data(indices=[0, 1], use_cache = True):
                 sig = sig[['sample', 'MLII']]
                 scaler = MinMaxScaler()
                 sig[['MLII']] = scaler.fit_transform(sig[['MLII']])
-                #             s = np.array([np.mean(s[i:i + 5]) for i, _ in enumerate(s)])
                 ann.to_pickle(ann_path(i, True), compression='gzip')
                 sig.to_pickle(sig_path(i, True), compression='gzip')
             result.append({'annotations': ann, 'signals': sig})
