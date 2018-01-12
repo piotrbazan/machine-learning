@@ -34,7 +34,7 @@ def plot_samples(data, beat_types = ['A', 'R', '/', 'V', 'L', 'N'], delta=392, n
             try:
                 sample = random.choice(samples)
             except KeyError:
-                print("Key error", len(sample))
+                print("Key error")
                 continue
             plt.subplot(1, n, 1 + j)
             for signal in sig.columns[1:]:
@@ -234,6 +234,7 @@ def detect_raw_signal(model, classes, df, start, stop):
         if type != 'NB':
             color = plt.cm.coolwarm((pred_val[i]))
             plt.text(start + step * i + 784 / 2, label_y, type, fontsize=12, color=color)
+            # print("Frame: %d Type: %s Pred: %.2f Preds: %s" % (step * i + 784 / 2, type, pred_val[i], res[i]))
 
     ax = plt.gca()
     ax.get_yaxis().set_visible(False)

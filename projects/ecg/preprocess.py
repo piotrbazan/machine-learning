@@ -46,6 +46,34 @@ def load_clean_data(indices=[0, 1], use_cache = True):
     return np.array(result)
 
 
+def load_train_test_data(calculate = False):
+    """
+    Loads dataset and splits it so that the following beats are evenly distrubiuted
+    among train and test set: /, A, L ,R, V, N
+    :param calculate: whether to calculate it from scratch, otwerwise use indexes already got
+    :return:
+    """
+    data = load_clean_data(list(range(48)))
+    if calculate:
+        df = data_stats(data)
+        sorted_a = df[['A']].sort_values(by='A', ascending=False)
+        train_index = pd.concat([sorted_a[0:5],sorted_a[20:]])
+        test_index = sorted_a[5:20]
+        test_index = test_index.extend(train_index.loc[7, 8, 20, 26, 30, 34])
+        test_index = test_index.append(train_index.loc[8])
+        test_index = test_index.append(train_index.loc[20])
+        test_index = test_index.append(train_index.loc[26])
+        test_index = test_index.append(train_index.loc[30])
+        test_index = test_index.append(train_index.loc[34])
+        train_index.drop([7, 8, 20, 26, 30, 34], inplace=True)
+        train, test = data[train_index.index.values], data[test_index.index.values]
+    else:
+        train = data[[42, 28, 38, 15, 2, 9, 13, 14, 17, 37, 5, 16, 4, 3, 41, 32, 10,
+              29, 12, 27, 24, 19, 18, 44]]
+        test = data[[36, 39, 23, 0, 21, 22, 31, 11, 43, 35, 6, 40, 1, 33, 25, 7, 8, 20,
+                     26, 30, 34]]
+    return train, test
+
 def data_stats(data):
     df = []
     for i, d in enumerate(data):
